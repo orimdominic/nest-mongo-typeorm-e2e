@@ -2,8 +2,11 @@ import { Column, Entity, ObjectID, ObjectIdColumn } from 'typeorm';
 
 @Entity('user')
 export class User {
+  @Column()
+  id: string;
+
   @ObjectIdColumn()
-  id: ObjectID;
+  _id?: string;
 
   @Column()
   name: string;
