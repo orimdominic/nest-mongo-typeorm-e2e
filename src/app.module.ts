@@ -2,7 +2,6 @@ import { Module, OnModuleDestroy } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { join } from 'path';
 import { UsersModule } from './users/users.module';
 import { User } from './entities/user.entity';
 import { MongoMemoryServer } from 'mongodb-memory-server';
@@ -20,7 +19,7 @@ let mongod: MongoMemoryServer;
               type: 'mongodb',
               host: 'localhost',
               database: 'mongo-typeorm-e2e',
-              entities: [join(__dirname + '/**/*.entity{.ts,.js}')],
+              entities: [User],
             };
           },
         })
@@ -29,9 +28,8 @@ let mongod: MongoMemoryServer;
           host: 'localhost',
           port: 27017,
           database: 'mongo-typeorm-e2e',
-          entities: [join(__dirname + '/**/*.entity{.ts,.js}')],
+          entities: [User],
         }),
-    TypeOrmModule.forFeature([User]),
     UsersModule,
   ],
   controllers: [AppController],
