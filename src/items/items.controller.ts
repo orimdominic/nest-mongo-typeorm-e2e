@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Param, Post, Query } from '@nestjs/common';
+import { Body, Controller, Get, HttpException, HttpStatus, Param, Post, Query } from '@nestjs/common';
 import { ItemsService } from './items.service';
 
 @Controller('items')
@@ -6,8 +6,19 @@ export class ItemsController {
   constructor(private itemsService: ItemsService) { }
 
   @Post()
-  handleCreateItem(@Body() item) {
-    return this.itemsService.create(item.name, item.owner);
+  async handleCreateItem(@Body() item) {
+    try {
+      return await this.itemsService.create(item.name, item.owner);
+    } catch (error) {
+      const errorResponseMap = {
+        "USER_NOT_FOUND_ERROR": {
+          status: HttpStatus.BAD_REQUEST,
+          message: "Owner not found"
+        }
+      }
+      const e = errorResponseMap[error.message]
+      throw new HttpException(e.message, e.status)
+    }
   }
 
   @Get()

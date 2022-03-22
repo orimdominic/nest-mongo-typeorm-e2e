@@ -10,6 +10,6 @@ export class Item {
   @Column()
   name: string;
 
-  @ObjectIdColumn()
-  owner: ObjectID;
+  @Column()
+  owner: string;
 }

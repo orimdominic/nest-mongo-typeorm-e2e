@@ -27,7 +27,10 @@ export class ItemsService {
   }
 
   async find(query: Partial<Item>) {
-    return this.itemRepo.find(this.generateQueryObject(query))
+    const filter = this.generateQueryObject(query)
+    console.log(filter)
+    const items = await this.itemRepo.find(filter)
+    return items
   }
 
   async findItemByIdOrProps(query: string | Partial<Item>) {
@@ -38,7 +41,7 @@ export class ItemsService {
   generateQueryObject(query: Partial<Item>) {
     const idProps = ["owner"]
     idProps.forEach((prop) => {
-      query[prop] = new ObjectId(query[prop])
+      query[prop] = query[prop] && new ObjectId(query[prop])
     })
     if (query.id) {
       query._id = new ObjectId(query.id)
