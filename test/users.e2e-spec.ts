@@ -40,7 +40,7 @@ describe('UsersController (e2e)', () => {
         expect(res.body).toMatchObject({
           name: 'Demo User',
           email: 'demo.user@mail.com',
-          id: expect.any(String),
+          _id: expect.any(String),
         });
       });
   });

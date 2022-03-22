@@ -12,7 +12,7 @@ export class UsersService {
   ) { }
 
   async createUser(user: { name: string; email: string }): Promise<User> {
-    return await this.usersRepo.save(user);
+    return this.usersRepo.save(user);
   }
 
   async findOneByIdOrProps(query: string | Partial<User>) {
