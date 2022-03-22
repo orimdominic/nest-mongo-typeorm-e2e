@@ -17,21 +17,39 @@ export class ItemsService {
   async create(name: string, owner: string) {
     try {
       const user = await this.userService.findOneByIdOrProps(owner)
+      if (!user) {
+        throw new Error("USER_NOT_FOUND_ERROR")
+      }
       return this.itemRepo.save({ name, owner: user._id })
     } catch (error) {
       throw new Error(error.message);
     }
   }
 
-  async getItems(item: Partial<Item>) {
-    if(item.id){
-      item._id = new ObjectId(item.id)
-      delete item.id
-    }
-    return this.itemRepo.find(item)
+  async find(query: Partial<Item>) {
+    return this.itemRepo.find(this.generateQueryObject(query))
   }
 
-  async getItem(id: string){
-    return this.itemRepo.findOne(id)
+  async findItemByIdOrProps(query: string | Partial<Item>) {
+    const filter = typeof (query) === 'string' ? { _id: new ObjectId(query) } : this.generateQueryObject(query)
+    return this.itemRepo.findOne(filter)
+  }
+
+  generateQueryObject(query: Partial<Item>) {
+    const idProps = ["owner"]
+    idProps.forEach((prop) => {
+      query[prop] = new ObjectId(query[prop])
+    })
+    if (query.id) {
+      query._id = new ObjectId(query.id)
+      delete query.id
+    }
+    const filter = {}
+    for (const key in query) {
+      if (query[key]) {
+        filter[key] = query[key]
+      }
+    }
+    return filter
   }
 }

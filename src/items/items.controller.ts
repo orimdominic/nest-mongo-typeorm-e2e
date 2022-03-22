@@ -12,11 +12,11 @@ export class ItemsController {
 
   @Get()
   handleGetItems(@Query() item) {
-    return this.itemsService.getItems(item)
+    return this.itemsService.find(item)
   }
 
   @Get(":id")
   handleGetItem(@Param("id") id: string) {
-    return this.itemsService.getItem(id)
+    return this.itemsService.findItemByIdOrProps(id)
   }
 }
