@@ -4,10 +4,10 @@ import * as request from "supertest";
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { Item } from "../src/entities/item.entity";
 import { User } from "../src/entities/user.entity";
-import { MongoRepository, ObjectID } from "typeorm";
+import { MongoRepository } from "typeorm";
 import { AppModule } from "../src/app.module";
 
-describe("ItemController (e2e)", () => {
+describe("ItemsController (e2e)", () => {
   let app: INestApplication,
     itemsRepo: MongoRepository<Item>,
     userRepo: MongoRepository<User>;
@@ -80,9 +80,6 @@ describe("ItemController (e2e)", () => {
         { name: "Plate", owner: user._id },
         { name: "Spoon", owner: user._id },
       ])
-      const createdItemsResponse = createdItems.map((item) => ({
-        _id: item._id.toString(), owner: item.owner, name: item.name
-      }))
 
       const { body, status } = await request(app.getHttpServer()).get("/items").query({
         owner: user._id.toString()
@@ -90,7 +87,14 @@ describe("ItemController (e2e)", () => {
 
       expect(status).toBe(200)
       expect(body.length).toBe(2)
-      expect(body).toEqual(expect.arrayContaining(createdItemsResponse))
+      expect(
+        body.map(({ _id }) => _id))
+        .toEqual(
+          expect.arrayContaining(createdItems.map(({ _id }) => _id.toString())))
+      expect(
+        body.map(({ name }) => name))
+        .toEqual(
+          expect.arrayContaining(createdItems.map(({ name }) => name)))
     })
   })
 

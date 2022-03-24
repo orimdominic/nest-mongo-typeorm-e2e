@@ -39,6 +39,6 @@ let mongod: MongoMemoryServer;
 })
 export class AppModule implements OnModuleDestroy {
   async onModuleDestroy() {
-    await mongod.stop(true);
+    if(mongod) await mongod.stop(true);
   }
 }
