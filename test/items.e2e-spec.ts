@@ -87,20 +87,13 @@ describe("ItemsController (e2e)", () => {
 
       expect(status).toBe(200)
       expect(body.length).toBe(2)
-      expect(
-        body.map(({ _id }) => _id))
-        .toEqual(
-          expect.arrayContaining(createdItems.map(({ _id }) => _id.toString())))
-      expect(
-        body.map(({ name }) => name))
-        .toEqual(
-          expect.arrayContaining(createdItems.map(({ name }) => name)))
+      const getStringPropArr = (arr, prop) => arr.map((item) => item[prop].toString())
+      expect(getStringPropArr(body, "_id")).toEqual(expect.arrayContaining(getStringPropArr(createdItems, "_id")))
+      expect(getStringPropArr(body, "name")).toEqual(expect.arrayContaining(getStringPropArr(createdItems, "name")))
     })
   })
-
 
   afterAll(async () => {
     await app.close();
   });
-
 })
