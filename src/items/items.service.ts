@@ -28,7 +28,6 @@ export class ItemsService {
 
   async find(query: Partial<Item>) {
     const filter = this.generateQueryObject(query)
-    console.log(filter)
     const items = await this.itemRepo.find(filter)
     return items
   }
@@ -40,17 +39,18 @@ export class ItemsService {
 
   generateQueryObject(query: Partial<Item>) {
     const idProps = ["owner"]
+    const queryClone = {...query}
     idProps.forEach((prop) => {
-      query[prop] = query[prop] && new ObjectId(query[prop])
+      queryClone[prop] = queryClone[prop] && new ObjectId(queryClone[prop])
     })
-    if (query.id) {
-      query._id = new ObjectId(query.id)
-      delete query.id
+    if (queryClone.id) {
+      queryClone._id = new ObjectId(queryClone.id)
+      delete queryClone.id
     }
     const filter = {}
-    for (const key in query) {
-      if (query[key]) {
-        filter[key] = query[key]
+    for (const key in queryClone) {
+      if (queryClone[key]) {
+        filter[key] = queryClone[key]
       }
     }
     return filter
