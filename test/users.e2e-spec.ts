@@ -20,28 +20,30 @@ describe('UsersController (e2e)', () => {
     usersRepo = moduleFixture.get(getRepositoryToken(User));
   });
 
-  afterEach(async () => {
-    await usersRepo.deleteMany({});
-  });
-
   afterAll(async () => {
     await app.close();
   });
 
-  it('/users (POST)', () => {
-    return request(app.getHttpServer())
-      .post('/users')
-      .send({
-        name: 'Demo User',
-        email: 'demo.user@mail.com',
-      })
-      .expect(201)
-      .expect((res) => {
-        expect(res.body).toMatchObject({
+  describe('POST /users', () => {
+    afterEach(async () => {
+      await usersRepo.deleteMany({});
+    });
+
+    it('creates a new user', () => {
+      return request(app.getHttpServer())
+        .post('/users')
+        .send({
           name: 'Demo User',
           email: 'demo.user@mail.com',
-          _id: expect.any(String),
+        })
+        .expect(201)
+        .expect((res) => {
+          expect(res.body).toMatchObject({
+            name: 'Demo User',
+            email: 'demo.user@mail.com',
+            _id: expect.any(String),
+          });
         });
-      });
+    });
   });
 });

@@ -1,16 +1,16 @@
-import { INestApplication } from "@nestjs/common"
-import { Test, TestingModule } from "@nestjs/testing";
-import * as request from "supertest";
+import { INestApplication } from '@nestjs/common';
+import { Test, TestingModule } from '@nestjs/testing';
+import * as request from 'supertest';
 import { getRepositoryToken } from '@nestjs/typeorm';
-import { Item } from "../src/entities/item.entity";
-import { User } from "../src/entities/user.entity";
-import { MongoRepository } from "typeorm";
-import { AppModule } from "../src/app.module";
+import { Item } from '../src/entities/item.entity';
+import { User } from '../src/entities/user.entity';
+import { MongoRepository } from 'typeorm';
+import { AppModule } from '../src/app.module';
 
-describe("ItemsController (e2e)", () => {
+describe('ItemsController (e2e)', () => {
   let app: INestApplication,
     itemsRepo: MongoRepository<Item>,
-    userRepo: MongoRepository<User>;
+    usersRepo: MongoRepository<User>;
 
   beforeAll(async () => {
     const moduleFixture: TestingModule = await Test.createTestingModule({
@@ -21,79 +21,87 @@ describe("ItemsController (e2e)", () => {
     await app.init();
 
     itemsRepo = moduleFixture.get(getRepositoryToken(Item));
-    userRepo = moduleFixture.get(getRepositoryToken(User));
-  })
+    usersRepo = moduleFixture.get(getRepositoryToken(User));
+  });
 
   afterAll(async () => {
     await app.close();
   });
 
-  describe("POST /items", () => {
+  describe('POST /items', () => {
     afterEach(async () => {
       await itemsRepo.deleteMany({});
-      await userRepo.deleteMany({});
+      await usersRepo.deleteMany({});
     });
 
-    it("creates an item", async () => {
-      const user = await userRepo.save({ email: "demouser@email.com" })
+    it('creates an item', async () => {
+      const user = await usersRepo.save({ email: 'demouser@email.com' });
       return request(app.getHttpServer())
-        .post("/items")
+        .post('/items')
         .send({
-          name: "Demo item",
-          owner: user._id.toString()
+          name: 'Demo item',
+          owner: user._id.toString(),
         })
         .expect(201)
         .expect((res) => {
           expect(res.body).toMatchObject({
-            name: "Demo item",
+            name: 'Demo item',
             owner: user._id.toString(),
-            _id: expect.any(String)
+            _id: expect.any(String),
           });
         });
-    })
+    });
 
-    it("throws an error if user is not found", async () => {
+    it('throws an error if user is not found', async () => {
       return request(app.getHttpServer())
-        .post("/items")
+        .post('/items')
         .send({
-          name: "Demo item",
-          owner: undefined
+          name: 'Demo item',
+          owner: undefined,
         })
         .expect(400)
         .expect((res) => {
           expect(res.body).toMatchObject({
-            message: "Owner not found"
+            message: 'Owner not found',
           });
         });
-    })
-  })
+    });
+  });
 
-  describe("GET /items", () => {
+  describe('GET /items', () => {
     afterEach(async () => {
       await itemsRepo.deleteMany({});
-      await userRepo.deleteMany({});
+      await usersRepo.deleteMany({});
     });
 
-    it("gets items", async () => {
-      const user = await userRepo.save({ email: "demouser@email.com" })
+    it('gets items', async () => {
+      const user = await usersRepo.save({ email: 'demouser@email.com' });
       let createdItems = await itemsRepo.save([
-        { name: "Plate", owner: user._id },
-        { name: "Spoon", owner: user._id },
-      ])
+        { name: 'Plate', owner: user._id },
+        { name: 'Spoon', owner: user._id },
+      ]);
 
-      const { body, status } = await request(app.getHttpServer()).get("/items").query({
-        owner: user._id.toString()
-      }).send()
+      const { body, status } = await request(app.getHttpServer())
+        .get('/items')
+        .query({
+          owner: user._id.toString(),
+        })
+        .send();
 
-      expect(status).toBe(200)
-      expect(body.length).toBe(2)
-      const getStringPropArr = (arr, prop) => arr.map((item) => item[prop].toString())
-      expect(getStringPropArr(body, "_id")).toEqual(expect.arrayContaining(getStringPropArr(createdItems, "_id")))
-      expect(getStringPropArr(body, "name")).toEqual(expect.arrayContaining(getStringPropArr(createdItems, "name")))
-    })
-  })
+      expect(status).toBe(200);
+      expect(body.length).toBe(2);
+      const getStringPropArr = (arr, prop) =>
+        arr.map((item) => item[prop].toString());
+      expect(getStringPropArr(body, '_id')).toEqual(
+        expect.arrayContaining(getStringPropArr(createdItems, '_id')),
+      );
+      expect(getStringPropArr(body, 'name')).toEqual(
+        expect.arrayContaining(getStringPropArr(createdItems, 'name')),
+      );
+    });
+  });
 
   afterAll(async () => {
     await app.close();
   });
-})
+});

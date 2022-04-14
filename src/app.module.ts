@@ -13,24 +13,24 @@ let mongod: MongoMemoryServer;
   imports: [
     process.env.NODE_ENV === 'test'
       ? TypeOrmModule.forRootAsync({
-        useFactory: async () => {
-          mongod = await getTestDb();
-          return {
-            url: mongod.getUri(),
-            type: 'mongodb',
-            host: 'localhost',
-            database: 'mongo-typeorm-e2e',
-            entities: [join(__dirname + '/**/*.entity{.ts,.js}')],
-          };
-        },
-      })
+          useFactory: async () => {
+            mongod = await getTestDb();
+            return {
+              url: mongod.getUri(),
+              type: 'mongodb',
+              host: 'localhost',
+              database: 'mongo-typeorm-e2e',
+              entities: [join(__dirname + '/**/*.entity{.ts,.js}')],
+            };
+          },
+        })
       : TypeOrmModule.forRoot({
-        type: 'mongodb',
-        host: 'localhost',
-        port: 27017,
-        database: 'mongo-typeorm-e2e',
-        entities: [join(__dirname + '/**/*.entity{.ts,.js}')],
-      }),
+          type: 'mongodb',
+          host: 'localhost',
+          port: 27017,
+          database: 'mongo-typeorm-e2e',
+          entities: [join(__dirname + '/**/*.entity{.ts,.js}')],
+        }),
     UsersModule,
     ItemsModule,
   ],
@@ -39,6 +39,6 @@ let mongod: MongoMemoryServer;
 })
 export class AppModule implements OnModuleDestroy {
   async onModuleDestroy() {
-    if(mongod) await mongod.stop(true);
+    if (mongod) await mongod.stop(true);
   }
 }
