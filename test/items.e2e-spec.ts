@@ -6,16 +6,27 @@ import { Item } from '../src/entities/item.entity';
 import { User } from '../src/entities/user.entity';
 import { MongoRepository } from 'typeorm';
 import { AppModule } from '../src/app.module';
+import { MongoMemoryServer } from 'mongodb-memory-server';
+import { join } from 'path';
 
 describe('ItemsController (e2e)', () => {
   let app: INestApplication,
+    mongod: MongoMemoryServer,
     itemsRepo: MongoRepository<Item>,
     usersRepo: MongoRepository<User>;
 
   beforeAll(async () => {
+    mongod = await MongoMemoryServer.create();
     const moduleFixture: TestingModule = await Test.createTestingModule({
       imports: [AppModule],
-    }).compile();
+    })
+      .overrideProvider('TypeOrmModuleOptions')
+      .useValue({
+        url: mongod.getUri(),
+        type: 'mongodb',
+        entities: [join(__dirname + '/**/*.entity{.ts,.js}')],
+      })
+      .compile();
 
     app = moduleFixture.createNestApplication();
     await app.init();
@@ -76,7 +87,7 @@ describe('ItemsController (e2e)', () => {
 
     it('gets items', async () => {
       const user = await usersRepo.save({ email: 'demouser@email.com' });
-      let createdItems = await itemsRepo.save([
+      const createdItems = await itemsRepo.save([
         { name: 'Plate', owner: user._id },
         { name: 'Spoon', owner: user._id },
       ]);
@@ -102,6 +113,7 @@ describe('ItemsController (e2e)', () => {
   });
 
   afterAll(async () => {
+    await mongod.stop();
     await app.close();
   });
 });
